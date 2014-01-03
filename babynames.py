@@ -22,7 +22,8 @@ def parse(raw_file, delimiter):
     # Set up an empty list
     parsed_data = {}
     
-    # Iterate over each row of csv file, zip together field -> value
+    # Iterate over each row of csv file, add 
+    # (Name, Gender) -> Frequency to the dictionary
     for row in csv_data:
         parsed_data[(row[0], row[1])] = int(row[2])
     
@@ -37,6 +38,9 @@ def plot(name, data):
     """Given a name and the Baby Name data,
     plots the annual frequency of the name"""
     
+    # Find the subset of data that applies to the given name.
+    # If the name doesn't exist in a year's associated dict,
+    # assume the frequency is 0.
     data = [data[i].get(name, 0) for i in range(len(data))]
     plt.plot(data, label=name[0])
 
