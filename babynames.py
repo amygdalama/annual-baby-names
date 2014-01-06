@@ -10,32 +10,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def parse(raw_file, delimiter):
-    """Parses a raw CSV file to a JSON-line object."""
+def parse(raw_file, delimiter=","):
+    """Parses a raw file with annual frequencies of
+    baby names and returns a dict with (Name, Gender)
+    pairs as the keys and frequencies as the values."""
     
-    # Open CSV file
+    # Open file
     opened_file = open(raw_file)
     
-    # Read CSV file
-    csv_data = csv.reader(opened_file, delimiter=delimiter)
+    # Read file
+    raw_data = csv.reader(opened_file, delimiter=delimiter)
     
-    # Set up an empty list
+    # Set up an empty dictionary
     parsed_data = {}
     
     # Iterate over each row of csv file, add 
     # (Name, Gender) -> Frequency to the dictionary
-    for row in csv_data:
+    for row in raw_data:
         parsed_data[(row[0], row[1])] = int(row[2])
     
-    # Close CSV file
+    # Close file
     opened_file.close()
 
     return parsed_data
 
 
 # Name parameter is actually a tuple with (Name, Gender)
-def plot(name, data):
-    """Given a name and the Baby Name data,
+def plot_name(name, data):
+    """Given a name and the annual name data,
     plots the annual frequency of the name"""
     
     # Find the subset of data that applies to the given name.
@@ -46,21 +48,27 @@ def plot(name, data):
 
 
 def main():
+    # Find all the files with 
     filenames = glob.glob('data/yob*.txt')
     data = []
 
     for f in filenames:
-        parsed_data = parse(f, ',')
+        parsed_data = parse(f)
         data.append(parsed_data)
-        
+    
+    # Define the names we want to plot. These are actually
+    # tuples with (Name, Gender) in order to handle names
+    # that could be either gender.    
     names = [('Amy', 'F'), ('Amie', 'F'), ('Aimee', 'F'), ('Aimie', 'F')]
 
     for name in names:
-        plot(name, data)
-
+        plot_name(name, data)
+    
+    # Set up the x-axis for the plot
+    # Our annual data starts at year 1880
     years = tuple(range(1880, 1880+len(filenames)))
     years_labels = tuple([x for x in years if x % 10 == 0])
-    years_ticks = tuple([x-1880 for x in years])
+    years_ticks = tuple(range(len(years)))
     plt.xticks(years_ticks, years_labels)
     plt.legend()
     plt.show()    
