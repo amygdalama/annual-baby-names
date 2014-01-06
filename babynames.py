@@ -6,7 +6,6 @@ import csv
 import glob
 import pprint
 
-import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -33,7 +32,17 @@ def parse(raw_file, delimiter=","):
     opened_file.close()
 
     return parsed_data
+    
 
+def parse_files(filenames):
+#     data = []
+#     for f in filenames:
+#         parsed_data = parse(f)
+#         data.append(parsed_data)
+#     final_sum = reduce(lambda a, x: a + x, [1, 2, 3, 4 ,5], 0)
+    parsed_data = reduce(lambda data, f: data + [parse(f)], filenames, list()) 
+    return parsed_data
+    
 
 # Name parameter is actually a tuple with (Name, Gender)
 def plot_name(name, data):
@@ -47,31 +56,29 @@ def plot_name(name, data):
     plt.plot(data, label=name[0])
 
 
+def plot_names(names, data):
+    for name in names:
+        plot_name(name, data)    
+
+    # Set up the x-axis for the plot
+    # Our annual data starts at year 1880
+    years = tuple(range(1880, 1880+len(data)))
+    years_labels = tuple([x for x in years if x % 10 == 0])
+    years_ticks = tuple([x - 1880 for x in years_labels])
+    plt.xticks(years_ticks, years_labels)
+    plt.legend()
+    plt.show()  
+
+
 def main():
     # Find all the files with 
     filenames = glob.glob('data/yob*.txt')
-    data = []
-
-    for f in filenames:
-        parsed_data = parse(f)
-        data.append(parsed_data)
-    
+    data = parse_files(filenames)
     # Define the names we want to plot. These are actually
     # tuples with (Name, Gender) in order to handle names
     # that could be either gender.    
     names = [('Amy', 'F'), ('Amie', 'F'), ('Aimee', 'F'), ('Aimie', 'F')]
-
-    for name in names:
-        plot_name(name, data)
-    
-    # Set up the x-axis for the plot
-    # Our annual data starts at year 1880
-    years = tuple(range(1880, 1880+len(filenames)))
-    years_labels = tuple([x for x in years if x % 10 == 0])
-    years_ticks = tuple(range(len(years)))
-    plt.xticks(years_ticks, years_labels)
-    plt.legend()
-    plt.show()    
+    plot_names(names, data)  
 
 
 if __name__ == '__main__':
